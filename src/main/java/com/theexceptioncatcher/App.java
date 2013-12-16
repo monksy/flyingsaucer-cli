@@ -32,8 +32,13 @@ public class App {
         //TODO: Perform transformation
     }
 
+    /**
+     * This method attempts to check if a file exists and can be read.
+     * @param filePath The file path that is to be checked.
+     * @return True if the file can be read by the executing user, and the file exists.
+     */
     private static boolean doesFileExist(String filePath) {
-        System.out.println(new File(filePath).getAbsolutePath());
-        return new File(filePath).isFile();
+        File fl = new File(filePath);
+        return fl.isFile() && fl.canRead();
     }
 }
