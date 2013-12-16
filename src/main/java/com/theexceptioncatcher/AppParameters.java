@@ -17,4 +17,8 @@ public interface AppParameters {
     @Option(longName = "pdfOutput", description = "This parameter describes where the PDF formatted output will be " +
             "stored.")
     String getPDFOutput();
+
+    @Option(defaultValue = "false", description = "This parameter indicates if the application has the ability to " +
+            "remove the existing pdfOutput file of if it should stop if it exists. ")
+    boolean getOverwrite();
 }
