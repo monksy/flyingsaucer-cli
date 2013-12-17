@@ -1,8 +1,15 @@
 package com.theexceptioncatcher;
 
 import com.lexicalscope.jewel.cli.CliFactory;
+import org.w3c.dom.Document;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 /**
  * This simple utiltiy is responsible for wrapping the XSLT/XML flying-saucer library into a command line utility. If
@@ -23,13 +30,32 @@ public class App {
         //Verify that the XML File exists
         if (!doesFileExist(inputs.getXmlFile())) {
             System.err.printf("Error: The XML file '%s' does not exist.%n", inputs.getXmlFile());
-            System.exit(1);
+            System.exit(2);
         }
 
-        //TODO: Check to see if the overwrite is neccessary.
-        //TODO: Check to see if the output file exists if so then through an error
 
-        //TODO: Perform transformation
+        //Perform transformation, overwrite the pdf file if neccesary
+        processXmlXslToPDF(inputs.getXmlFile(), inputs.getXSLFile(), inputs.getPDFOutput());
+    }
+
+    private static void processXmlXslToPDF(String xmlFile, String xslFile, String pdfOutput) {
+        // parse the markup into an xml Document
+     /*   DocumentBuilder builder = null;
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse();
+
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocument(doc, null);
+
+            OutputStream os = new FileOutputStream();
+            renderer.layout();
+            renderer.createPDF(os);
+            os.close();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }                    */
+
     }
 
     /**

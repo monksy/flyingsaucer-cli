@@ -18,7 +18,4 @@ public interface AppParameters {
             "stored.")
     String getPDFOutput();
 
-    @Option(defaultValue = "false", description = "This parameter indicates if the application has the ability to " +
-            "remove the existing pdfOutput file of if it should stop if it exists. ")
-    boolean getOverwrite();
 }
