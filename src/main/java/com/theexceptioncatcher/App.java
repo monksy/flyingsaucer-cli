@@ -10,8 +10,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 
@@ -39,12 +37,22 @@ public class App {
 
 
         //Perform transformation, overwrite the pdf file if neccesary
-        processXmlXslToPDF(inputs.getXmlFile(), inputs.getXSLFile(), inputs.getPDFOutput());
+        int result = processXmlXslToPDF(inputs.getXmlFile(), inputs.getXSLFile(), inputs.getPDFOutput());
+        System.exit(result);
     }
 
-    private static void processXmlXslToPDF(String xmlFile, String xslFile, String pdfOutput) {
+    /**
+     * This method handles the majority of the work of the application. This takes an XMl file, transforms it into
+     * XHTML output with the XSL file given, and then
+     *
+     * @param xmlFile   The file path to the XML file.
+     * @param xslFile   The file path to the XSL file.
+     * @param pdfOutput The file path to the PDF.
+     * @return Returns a success code if this succeeded or not. 0 if it did, a positive number if it didn't.
+     */
+    private static int processXmlXslToPDF(String xmlFile, String xslFile, String pdfOutput) {
         // parse the markup into an xml Document
-
+        int result = 0;
         try (OutputStream os = new FileOutputStream(pdfOutput, false)) {
             TransformerFactory factory = TransformerFactory.newInstance();
             Source source = new StreamSource(new FileInputStream(xmlFile));
@@ -54,10 +62,10 @@ public class App {
             //Load the XML, and XSL files
             Templates template = factory.newTemplates(new StreamSource(new FileInputStream(xslFile)));
             Transformer xformer = template.newTransformer();
-            Result result = new DOMResult(resultingDocument);
+            Result domResult = new DOMResult(resultingDocument);
 
             //Transform the XML file into an XHMTL formated XML document
-            xformer.transform(source, result);
+            xformer.transform(source, domResult);
 
             //Send the result XML out to the PDf writer, Java autoclose closes the PDF
             ITextRenderer renderer = new ITextRenderer();
@@ -67,36 +75,21 @@ public class App {
 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
+
         } catch (DocumentException e) {
             e.printStackTrace();
+            result = 3;
         } catch (IOException e) {
             e.printStackTrace();
+            result = 3;
         } catch (TransformerConfigurationException e) {
             e.printStackTrace();
+            result = 3;
         } catch (TransformerException e) {
             e.printStackTrace();
+            result = 3;
         }
-
-    }
-
-    private static void writeOut(Document doc) {
-        // Use a Transformer for output
-        TransformerFactory tFactory =
-                TransformerFactory.newInstance();
-        Transformer transformer = null;
-        try {
-            transformer = tFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(System.out);
-            transformer.transform(source, result);
-
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+        return result;
     }
 
     /**
