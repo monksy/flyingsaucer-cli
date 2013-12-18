@@ -1,15 +1,19 @@
 package com.theexceptioncatcher;
 
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lowagie.text.DocumentException;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 
 /**
  * This simple utiltiy is responsible for wrapping the XSLT/XML flying-saucer library into a command line utility. If
@@ -40,26 +44,64 @@ public class App {
 
     private static void processXmlXslToPDF(String xmlFile, String xslFile, String pdfOutput) {
         // parse the markup into an xml Document
-     /*   DocumentBuilder builder = null;
-        try {
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.parse();
 
+        try (OutputStream os = new FileOutputStream(pdfOutput, false)) {
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Source source = new StreamSource(new FileInputStream(xmlFile));
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document resultingDocument = builder.newDocument();
+
+            //Load the XML, and XSL files
+            Templates template = factory.newTemplates(new StreamSource(new FileInputStream(xslFile)));
+            Transformer xformer = template.newTransformer();
+            Result result = new DOMResult(resultingDocument);
+
+            //Transform the XML file into an XHMTL formated XML document
+            xformer.transform(source, result);
+
+            //Send the result XML out to the PDf writer, Java autoclose closes the PDF
             ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocument(doc, null);
-
-            OutputStream os = new FileOutputStream();
+            renderer.setDocument(resultingDocument, null);
             renderer.layout();
             renderer.createPDF(os);
-            os.close();
+
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
-        }                    */
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    private static void writeOut(Document doc) {
+        // Use a Transformer for output
+        TransformerFactory tFactory =
+                TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = tFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(System.out);
+            transformer.transform(source, result);
+
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * This method attempts to check if a file exists and can be read.
+     *
      * @param filePath The file path that is to be checked.
      * @return True if the file can be read by the executing user, and the file exists.
      */
