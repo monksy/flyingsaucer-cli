@@ -18,8 +18,8 @@ but it does clean up the environment prior to the build. If the build succeeded 
 "target" directory.
 
 Running the application assumes that the java executable is within your path on the command line.
-java -jar target/flyingsaucer-cli-1.0-SNAPSHOT.jar -xmlFile sampleXMLFile.xml -xslFile sampleXSLFile.xsl
--pdfOutput sample.pdf
+
+     java -jar target/flyingsaucer-cli-1.0-SNAPSHOT.jar -xmlFile sampleXMLFile.xml -xslFile sampleXSLFile.xsl -pdfOutput sample.pdf
 
 The output of this application should be a the result of the transformation fo the sampleXMLFile.xml with the
 sampleXSL.xsl file into the sample pdf.
